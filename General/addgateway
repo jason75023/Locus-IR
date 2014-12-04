@@ -1,0 +1,53 @@
+#!/bin/bash
+#
+# Script to add "GATEWAYDEV=eth1" in /etc/sysconfig/network 
+# 
+#
+
+check() {
+        grep "GATEWAYDEV=eth1" network
+        if [ $? -ne 0 ]
+        then
+	          echo "default routing device:eth1 is not defined"
+      	else
+	          echo "default routing device: eth1 is added"
+	      fi
+}
+
+add() {
+	cd /etc/sysconfig/
+	sed -i.`date +%Y%m%d` "/HOSTNAME/aGATEWAYDEV=eth1" network
+}
+
+fallback() {
+	cd /etc/sysconfig/
+	cp -p network.`date +%Y%m%d` network
+}
+
+restartnetwork() {
+	service network restart
+}
+
+#
+# MAIN program
+#
+IFS='
+'
+MENU="
+check default routing device eth1 setup  
+add default routing device eth1
+remove default routing device eth1
+recycle network service 
+Exit/Stop
+"
+PS3='Select task:'
+select m1 in $MENU
+do
+case $REPLY in
+1) check;;
+2) add;;
+3) fallback;;
+4) restartnetwork;;
+5) exit 0 ;;
+esac
+done
