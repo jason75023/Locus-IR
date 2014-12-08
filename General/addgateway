@@ -11,21 +11,25 @@ check() {
 	          echo "default routing device:eth1 is not defined"
       	else
 	          echo "default routing device: eth1 is added"
-	      fi
+        fi
+        return
 }
 
 add() {
 	cd /etc/sysconfig/
 	sed -i.`date +%Y%m%d` "/HOSTNAME/aGATEWAYDEV=eth1" network
+	return
 }
 
 fallback() {
 	cd /etc/sysconfig/
 	cp -p network.`date +%Y%m%d` network
+	return
 }
 
 restartnetwork() {
 	service network restart
+	return
 }
 
 #
