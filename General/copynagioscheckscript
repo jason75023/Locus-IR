@@ -1,0 +1,20 @@
+ #!/bin/bash   # 
+   # Copy nagios client script check_log3.pl to ir1/ir2/ir3 /usr/local/nagios/libexec/ directory
+   # chown to nagios:nagios for the script
+   # chmod 755 to the script
+  #
+  # pre-requirement:   check_log3.pl under Lcous jump server jw7698's home directory 
+  # usage: ./copycheckscript
+  # 
+  #
+   for i in luir-prod-ir1-sql1 luir-prod-ir2-sql1 luir-prod-ir3-sql1   
+   do 
+       scp check_log3.pl $i:~
+       ssh -t $i "sudo cp ~/check_log3.pl /usr/local/nagios/libexec/"
+       ssh -t $i "sudo chown nagios.nagios /usr/local/nagios/libexec/check_log3.pl"
+       ssh -t $i "sudo chmod 755 /usr/local/nagios/libexec/check_log3.pl"
+       ssh -t $i "ls -la  /usr/local/nagios/libexec/check_log3.pl"
+       echo "command[check_hazelcast_connection]=/usr/local/nagios/libexec/check_log3.pl -l /var/log/locus_ir/locus_ir.log -p \"HazelcastClient is no longer active\" -c 1 -a" | sudo ssh $i " cat >> /usr/local/nagios/etc/nrpe.cfg"
+       ssh -t $i "tail -1 /usr/local/nagios/etc/nrpe.cfg"
+   done 
+
