@@ -1,0 +1,28 @@
+#!/bin/bash
+#Prequirement:
+# download  following 4 centos packages under ~ directory
+# 1. glibc-2.12-1.149.el6_6.5.x86_64.rpm
+# 2. glibc-common-2.12-1.149.el6_6.5.x86_64.rpm
+# 3. glibc-devel-2.12-1.149.el6_6.5.x86_64.rpm
+# 4. glibc-headers-2.12-1.149.el6_6.5.x86_64.rpm
+# download GHOST.c  under ~ directory and use gcc to compile it into execution file: GHOST
+# gcc ~/GHOST.c -o ~/GHOST
+#Usage:
+# ./ghostpatch
+for i in `cat hostlist`
+do
+   #put patch requied packages on servers
+   scp glibc-2.12-1.149.el6_6.5.x86_64.rpm $i:~
+   scp glibc-common-2.12-1.149.el6_6.5.x86_64.rpm $i:~
+   scp glibc-devel-2.12-1.149.el6_6.5.x86_64.rpm $i:~
+   scp glibc-headers-2.12-1.149.el6_6.5.x86_64.rpm $i:~
+   
+   #check glibc vulverability status before patch 
+   ssh -t $i "~/GHOST"
+   
+   #apply glibc patch 
+   ssh -t $i 'sudo rpm -ivhU `ls glibc*`'
+   
+   #check glibc vulverability status after patch
+   ssh -t $i "~/GHOST"
+done
