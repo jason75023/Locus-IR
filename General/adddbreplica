@@ -1,0 +1,75 @@
+#!/bin/bash
+# CHG 000002840386 - Locus-IR replication of mind_data table across sites 
+# Script to add Locus-IR replication of mind_data table across sites
+# usage:
+#      run this script as root user 
+#
+modify() {
+cd /etc
+sed -i.`date +%Y%m%d` -e '/^binlog-do-db/a\
+binlog-do-db=locusfeed' -e '$ a\
+replicate-do-db=locusfeed' my.cnf
+return
+}
+
+stopmysql() {
+while pgrep mysql
+do 
+   kill -9 $(pgrep mysql)  	
+done
+return
+}
+
+startmysql() {
+su - mysql -c 'service mysql start' << EOF
+L0cu5!
+EOF
+
+if pgrep mysql  
+then
+   echo "mysql process is running...." 
+else  
+   echo "mysql process is not running"
+fi
+return
+}
+
+resetreplichannel() {
+mysql -u root -plocus << EOF
+SET GLOBAL SQL_SLAVE_SKIP_COUNTER = 1;
+start  slave;
+EOF
+return
+}
+
+checkreplication() {
+mysql -u root -plocus -e "show slave status\G"
+return
+}
+
+#
+# MAIN program
+#
+IFS='
+'
+MENU="
+Modify my.cnf file 
+Stop mysql process
+start mysql process
+reset replication channel
+check replication status 
+Exit/Stop
+"
+PS3='Select task:'
+select m1 in $MENU
+do
+case $REPLY in
+1) modify;;
+2) stopmysql;;
+3) startmysql;;
+4) resetreplichannel;;
+5) checkreplication;; 
+6) exit 0 ;;
+esac
+done
+
