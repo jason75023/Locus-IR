@@ -15,15 +15,14 @@ return
 stopmysql() {
 while pgrep mysql
 do 
-   kill -9 $(pgrep mysql)  	
+   su mysql -c '/mnt/ndb-7.3.3/support-files/mysql.server stop'  	
 done
 return
 }
 
 startmysql() {
-su - mysql -c 'service mysql start' << EOF
-L0cu5!
-EOF
+
+su mysql -c '/mnt/ndb-7.3.3/support-files/mysql.server start'
 
 if pgrep mysql  
 then
@@ -35,10 +34,7 @@ return
 }
 
 resetreplichannel() {
-mysql -u root -plocus << EOF
-SET GLOBAL SQL_SLAVE_SKIP_COUNTER = 1;
-start  slave;
-EOF
+mysql -u root -plocus -e "SET GLOBAL SQL_SLAVE_SKIP_COUNTER = 1" -e "start  slave"
 return
 }
 
